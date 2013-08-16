@@ -68,7 +68,9 @@ namespace FastCache
                 if (File.Exists(app.Server.MapPath(cachedUrl)))
                 {
                     if (debug) app.Response.Write("Found cache=>" + hashedPath + " - " + pathQuery + " - " + app.Request.Url.Query + " - " + cachedUrl + " - "+ app.Response.StatusCode + "<br/>");
-                    app.Context.RewritePath(cachedUrl, false);
+                    //app.Context.RewritePath(cachedUrl,false);
+                    app.Server.Transfer(cachedUrl);
+                    
                 }
                 else
                 {
