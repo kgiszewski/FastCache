@@ -35,7 +35,7 @@ namespace FastCache
 
         private string extension = "";
         private List<string> excludedExtensions= new List<string>{
-            "axd"
+            "axd", "html"
         };
 
         private bool containsExcludedPath = false;
@@ -94,20 +94,28 @@ namespace FastCache
                 if (filter != null)
                 {
                     //test to see if the doctype is allowed to be cached
-                    //Umbraco.Core.ApplicationContext.Current.Services.ContentService
-                    //umbraco.NodeFactory.Node.GetCurrent().NodeTypeAlias;
 
-                    //setup for a new cached file
-                    string responseText = filter.ToString().Trim();
+                    int? pageId = Umbraco.Web.UmbracoContext.Current.PageId;
+                    if (pageId != null)
+                    {
+                        Umbraco.Core.Models.IContent currentPage= Umbraco.Core.ApplicationContext.Current.Services.ContentService.GetById((int)pageId);
 
-                    if (debug) app.Response.Write("Cache Size: " + responseText.Length + "<br/>");
+                        //test the doctype
+                        if (!FastCacheCore.ExcludedDocTypes.Contains(currentPage.ContentType.Alias))
+                        {
+                            //setup for a new cached file
+                            string responseText = filter.ToString().Trim();
 
-                    //write the new cache file
-                    FileInfo file = new System.IO.FileInfo(app.Server.MapPath(cachedUrl));
-                    file.Directory.Create();
+                            if (debug) app.Response.Write("Cache Size: " + responseText.Length + "<br/>");
 
-                    File.WriteAllText(app.Server.MapPath(cachedUrl), responseText);
-                    if (debug) app.Response.Write("Creating Cache file: " + cachedUrl + "<br/>");
+                            //write the new cache file
+                            FileInfo file = new System.IO.FileInfo(app.Server.MapPath(cachedUrl));
+                            file.Directory.Create();
+
+                            File.WriteAllText(app.Server.MapPath(cachedUrl), responseText);
+                            if (debug) app.Response.Write("Creating Cache file: " + cachedUrl + "<br/>");
+                        }
+                    }
                 }
             }            
         }

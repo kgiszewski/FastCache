@@ -27,6 +27,14 @@ namespace FastCache
             }
         }
 
+        public static string[] ExcludedDocTypes
+        {
+            get
+            {
+                return System.Web.Configuration.WebConfigurationManager.AppSettings["fastCache:excludedDocTypes"].Split(',');
+            }
+        }
+
         public static bool Enabled
         {
             get{
