@@ -5,6 +5,8 @@ using System.Web;
 using System.IO;
 using System.Security.Cryptography;
 
+using Umbraco.Core.Services;
+
 /*
  * Written by @KevinGiszewski 
  * 
@@ -91,7 +93,11 @@ namespace FastCache
 
                 if (filter != null)
                 {
-                    //string responseText = filter.StreamContent;
+                    //test to see if the doctype is allowed to be cached
+                    //Umbraco.Core.ApplicationContext.Current.Services.ContentService
+                    //umbraco.NodeFactory.Node.GetCurrent().NodeTypeAlias;
+
+                    //setup for a new cached file
                     string responseText = filter.ToString().Trim();
 
                     if (debug) app.Response.Write("Cache Size: " + responseText.Length + "<br/>");
