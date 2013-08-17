@@ -20,7 +20,6 @@ namespace FastCache
         private HttpApplication app;
         private MD5 md5=MD5.Create();
 
-        private List<string> excludedPaths = new List<string>();
         private static string mimeType = "text/html";
 
         private bool enabled = FastCacheCore.Enabled;
@@ -34,9 +33,6 @@ namespace FastCache
         private string hashedPath = "";
 
         private string extension = "";
-        private List<string> excludedExtensions= new List<string>{
-            "axd", "html"
-        };
 
         private bool containsExcludedPath = false;
 
@@ -122,7 +118,7 @@ namespace FastCache
 
         private bool HasExcludedPath(string path){
 
-            foreach(string excluded in excludedPaths){
+            foreach(string excluded in FastCacheCore.ExcludedPaths){
                 //if (debug) app.Response.Write("Checking path: " + path + " against "+ excluded +"<br/>");
                                 
                 if(path.ToLower().StartsWith(excluded.ToLower())){
@@ -137,9 +133,7 @@ namespace FastCache
         {
             path = app.Request.Url.AbsolutePath;
             pathQuery = app.Request.Url.PathAndQuery;
-
-            excludedPaths.AddRange(FastCacheCore.ExcludedPaths);
-
+            
             containsExcludedPath = HasExcludedPath(path);
             hashedPath = FastCacheCore.GetMd5Hash(md5, pathQuery);
 
@@ -163,7 +157,7 @@ namespace FastCache
                 app.Request.HttpMethod == "GET" &&
                 app.Response.ContentType == mimeType &&
                 app.Response.StatusCode == 200 &&
-                !excludedExtensions.Contains(extension)
+                !FastCacheCore.ExcludedExtensions.Contains(extension)
             );
         }
     }

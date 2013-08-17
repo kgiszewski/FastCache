@@ -35,6 +35,22 @@ namespace FastCache
             }
         }
 
+        public static List<string> ExcludedExtensions
+        {
+            get
+            {
+                List<string> list = new List<string>() {"html", "axd"};
+
+                string[] config=System.Web.Configuration.WebConfigurationManager.AppSettings["fastCache:excludedExtension"].Split(',');
+                foreach (string ext in config)
+                {
+                    list.Add(ext);
+                }
+
+                return list;
+            }
+        }
+
         public static bool Enabled
         {
             get{
