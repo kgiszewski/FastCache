@@ -53,6 +53,8 @@ namespace FastCache
 
         private void Start(Object sender, EventArgs e)
         {
+            if (debug) app.Response.Write("Starting...<br/>");
+         
             SetParams();
 
             if (IsCachable())
@@ -60,29 +62,33 @@ namespace FastCache
                 if (debug) app.Response.Write("Looking for=>" + cachedUrl + "<br/>");
                 if (debug) app.Response.Write("Mime/Type=>" + app.Response.ContentType + "<br/>");
                 //if (debug) app.Response.Write("Extension=>" + extension + "<br/>");
-                //app.Response.End();
-
                 
                 if (File.Exists(app.Server.MapPath(cachedUrl)))
                 {
-                    if (debug) app.Response.Write("Found cache=>" + hashedPath + " - " + pathQuery + " - " + app.Request.Url.Query + " - " + cachedUrl + " - "+ app.Response.StatusCode + "<br/>");
+                    if (debug) app.Response.Write("Found cache=>" + hashedPath + " - " + pathQuery + " - " + app.Request.Url.Query + " - " + cachedUrl + " - " + app.Response.StatusCode + "<br/>");
                     //app.Context.RewritePath(cachedUrl,false);
                     app.Server.Transfer(cachedUrl);
-                    
+
                 }
                 else
                 {
                     StreamWatcher watcher = new StreamWatcher(app.Response.Filter);
                     app.Context.Items["StaticCacheModule_watcher"] = watcher;
-                    app.Response.Filter = watcher;  
+                    app.Response.Filter = watcher;
                 }
+            }
+            else
+            {
+                if (debug) app.Response.Write("Not cacheable<br/>");
             }
         }
 
         private void Finish(object sender, EventArgs e)
         {
+            if (debug) app.Response.Write("Finishing...<br/>");
+
             SetParams();
-                
+                               
             if (IsCachable())
             {
                StreamWatcher filter = app.Context.Items["StaticCacheModule_watcher"] as StreamWatcher; 
@@ -94,6 +100,7 @@ namespace FastCache
                     int? pageId = Umbraco.Web.UmbracoContext.Current.PageId;
                     if (pageId != null)
                     {
+                        if (debug) app.Response.Write("Acquired current page<br/>");
                         Umbraco.Core.Models.IContent currentPage= Umbraco.Core.ApplicationContext.Current.Services.ContentService.GetById((int)pageId);
 
                         //test the doctype
@@ -113,7 +120,11 @@ namespace FastCache
                         }
                     }
                 }
-            }            
+            }
+            else
+            {
+                if (debug) app.Response.Write("Not cacheable<br/>");
+            }
         }
 
         private bool HasExcludedPath(string path){
@@ -131,26 +142,52 @@ namespace FastCache
 
         private void SetParams()
         {
+            if (debug) app.Response.Write("Setting params...<br/>");
+
             path = app.Request.Url.AbsolutePath;
+            if (debug) app.Response.Write("path=>"+path+"<br/>");
+
             pathQuery = app.Request.Url.PathAndQuery;
-            
+            if (debug) app.Response.Write("pathQuery=>"+pathQuery+"<br/>");
+
             containsExcludedPath = HasExcludedPath(path);
+
+            if (debug) app.Response.Write("Contains Excluded Path=>" + containsExcludedPath + "<br/>");
+
             hashedPath = FastCacheCore.GetMd5Hash(md5, pathQuery);
+
+            if (debug) app.Response.Write("Hashed Path=>" + hashedPath + "<br/>");
 
             if (path.Contains('.'))
             {
                 try
                 {
                     extension = Path.GetExtension(path).Substring(1);
+                    if (debug) app.Response.Write("Extension=>" + extension + "<br/>");
                 }
                 catch { }
             }
 
             cachedUrl = "~/" + FastCacheCore.CacheDirectory + "/" + hashedPath + ".html";
+
+            if (debug) app.Response.Write("Cached Url=>" + cachedUrl + "<br/>");
         }
 
         private bool IsCachable()
         {
+            if (debug)
+            {
+                app.Response.Write("Testing cacheable=>"+(
+                    !containsExcludedPath &&
+                    !pathQuery.Contains("404") &&
+                    app.Request.HttpMethod == "GET" &&
+                    app.Response.ContentType == mimeType &&
+                    app.Response.StatusCode == 200 &&
+                    !FastCacheCore.ExcludedExtensions.Contains(extension))
+                    +"<br/>"
+                );
+            }
+
             return (
                 !containsExcludedPath &&
                 !pathQuery.Contains("404") &&
