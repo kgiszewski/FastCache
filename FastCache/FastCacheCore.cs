@@ -44,7 +44,10 @@ namespace FastCache
                 string[] config=System.Web.Configuration.WebConfigurationManager.AppSettings["fastCache:excludedExtension"].Split(',');
                 foreach (string ext in config)
                 {
-                    list.Add(ext);
+                    if (ext != "")
+                    {
+                        list.Add(ext);
+                    }
                 }
 
                 return list;

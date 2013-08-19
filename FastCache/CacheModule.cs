@@ -163,10 +163,13 @@ namespace FastCache
                 try
                 {
                     extension = Path.GetExtension(path).Substring(1);
-                    if (debug) app.Response.Write("Extension=>" + extension + "<br/>");
                 }
-                catch { }
+                catch {
+                    if (debug) app.Response.Write("Extension Error=>" + Path.GetExtension(path) + "<br/>");
+                }
             }
+
+            if (debug) app.Response.Write("Extension=>" + extension + "<br/>");
 
             cachedUrl = "~/" + FastCacheCore.CacheDirectory + "/" + hashedPath + ".html";
 
@@ -186,6 +189,9 @@ namespace FastCache
                     !FastCacheCore.ExcludedExtensions.Contains(extension))
                     +"<br/>"
                 );
+
+                app.Response.Write("Excluded exts=>" + String.Join(", ", FastCacheCore.ExcludedExtensions.ToArray()) + "<br/>");
+                
             }
 
             return (
