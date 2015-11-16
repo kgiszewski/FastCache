@@ -87,14 +87,5 @@ namespace FastCache {
                 return ((bool)(obj));
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to StaticCacheModule_watcher.
-        /// </summary>
-        internal static string WatcherCode {
-            get {
-                return ResourceManager.GetString("WatcherCode", resourceCulture);
-            }
-        }
     }
 }

@@ -225,18 +225,8 @@
     </Compile>
     <Compile Include="Events.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FastCache.ascx.cs">
-      <DependentUpon>FastCache.ascx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="FastCache.ascx.designer.cs">
-      <DependentUpon>FastCache.ascx</DependentUpon>
-    </Compile>
     <Compile Include="FastCacheCore.cs" />
     <Compile Include="Watcher.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="FastCache.ascx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

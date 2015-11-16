@@ -18,13 +18,13 @@ namespace FastCache
         private readonly bool _enabled = Configuration.FastCacheEnabled;
         private readonly MD5 _md5 = MD5.Create();
         private HttpApplication _app;
-        private string _cachedUrl = string.Empty;
+        private string _cachedUrl = null;
         private bool _containsExcludedPath;
-        private string _extension = string.Empty;
-        private string _hashedPath = string.Empty;
-        private string _path = string.Empty;
-        private string _pathQuery = string.Empty;
+        private string _hashedPath = null;
+        private string _path = null;
+        private string _pathQuery = null;
         private bool _hasExtension;
+        private StreamWatcher _watcher;
 
         public void Init(
             HttpApplication app )
@@ -49,24 +49,22 @@ namespace FastCache
 
             if( !IsCachable() )
                 return;
-
-            var filter = (StreamWatcher) _app.Context.Items[Configuration.WatcherCode];
-
-            if( filter == null )
-                return;
-
+            
             var pageId = UmbracoContext.Current.PageId;
 
             if( pageId == null )
                 return;
             
             //setup for a new cached file
-            var responseText = filter.ToString()
+            var responseText = _watcher
+                .ToString()
                 .Trim();
 
             //write the new cache file
             var file = new FileInfo( _app.Server.MapPath( _cachedUrl ) );
-            file.Directory.Create();
+
+            if(!file.Directory.Exists)
+                file.Directory.Create();
 
             File.WriteAllText( _app.Server.MapPath( _cachedUrl ), responseText );
         }
@@ -74,8 +72,12 @@ namespace FastCache
         private static bool HasExcludedPath(
             string path )
         {
-            return FastCacheCore.ExcludedPaths.Any( excluded => path.ToLower()
-                .StartsWith( excluded.ToLower() ) );
+            return FastCacheCore
+                    .ExcludedPaths
+                    .Any( excluded => path
+                        .ToLower()
+                        .StartsWith( excluded.ToLower() ) 
+                        );
         }
 
         private bool IsCachable()
@@ -101,14 +103,7 @@ namespace FastCache
             _hashedPath = FastCacheCore.GetMd5Hash( _md5, _pathQuery );
 
             _hasExtension = _path.Contains( '.' );
-
-            if( _hasExtension )
-            {
-                _extension = Path
-                    .GetExtension( _path )
-                    .Substring( 1 );
-            }
-
+            
             _cachedUrl = $"~/{Configuration.FastCacheDirectory}/{_hashedPath}.html";
         }
 
@@ -125,12 +120,11 @@ namespace FastCache
             {
                 _app.Server.Transfer( _cachedUrl );
             }
+
             else
             {
-                var watcher = new StreamWatcher( _app.Response.Filter );
-
-                _app.Context.Items[Configuration.WatcherCode] = watcher;
-                _app.Response.Filter = watcher;
+                _watcher = new StreamWatcher( _app.Response.Filter );
+                _app.Response.Filter = _watcher;
             }
         }
     }
