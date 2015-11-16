@@ -55,18 +55,20 @@ namespace FastCache
             if( pageId == null )
                 return;
             
-            //setup for a new cached file
-            var responseText = _watcher
+            var html = _watcher
                 .ToString()
                 .Trim();
+        
+            var filePath = _app.Server.MapPath(_cachedUrl);
 
-            //write the new cache file
-            var file = new FileInfo( _app.Server.MapPath( _cachedUrl ) );
-
-            if(!file.Directory.Exists)
-                file.Directory.Create();
-
-            File.WriteAllText( _app.Server.MapPath( _cachedUrl ), responseText );
+            Directory.CreateDirectory( 
+                Path.GetDirectoryName( filePath ) 
+                );
+            
+            File.WriteAllText( 
+                filePath, 
+                html 
+                );
         }
 
         private static bool HasExcludedPath(
@@ -119,6 +121,7 @@ namespace FastCache
             if( File.Exists( _app.Server.MapPath( _cachedUrl ) ) )
             {
                 _app.Server.Transfer( _cachedUrl );
+
             }
 
             else
