@@ -3,8 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Web;
-using Umbraco.Core;
 using Umbraco.Web;
+using System.Web.Caching;
 
 /*
  * Written by @KevinGiszewski 
@@ -16,7 +16,6 @@ namespace FastCache
     {
         private const string MimeType = "text/html";
         private readonly bool _enabled = Configuration.FastCacheEnabled;
-        private readonly MD5 _md5 = MD5.Create();
         private HttpApplication _app;
         private string _cachedUrl = null;
         private bool _containsExcludedPath;
@@ -69,6 +68,8 @@ namespace FastCache
                 filePath, 
                 html 
                 );
+            
+            _app.Application.Set(_hashedPath, html);
         }
 
         private static bool HasExcludedPath(
@@ -102,7 +103,7 @@ namespace FastCache
 
             _containsExcludedPath = HasExcludedPath( _path );
 
-            _hashedPath = FastCacheCore.GetMd5Hash( _md5, _pathQuery );
+            _hashedPath = FastCacheCore.GetMd5Hash( _pathQuery );
 
             _hasExtension = _path.Contains( '.' );
             
@@ -118,10 +119,30 @@ namespace FastCache
             if( !IsCachable() )
                 return;
 
-            if( File.Exists( _app.Server.MapPath( _cachedUrl ) ) )
-            {
-                _app.Server.Transfer( _cachedUrl );
+            var appCache = (string) _app.Application.Get(_hashedPath );
 
+            // in preference, use in-memory app cache as file system access is slow
+            // on azure
+            if ( appCache != null )
+            {
+                _app.Response.Write(appCache);
+                _app.Response.Headers.Add("cache-mode", "app-cache");
+                _app.Response.ContentType = "text/html";
+            }
+
+            else if ( File.Exists( _app.Server.MapPath( _cachedUrl ) ) )
+            {
+                _app.Application.Set(
+                    _hashedPath, 
+                    File.ReadAllText(_app.Server.MapPath(_cachedUrl)) 
+                    );
+
+                _app.Server.Transfer( _cachedUrl );
+                _app.Response.Headers.Add("cache-mode", "file-cache");
+
+                // force the content type to be text/html in case there
+                // isn't a static mime mapping in the web.config file
+                _app.Response.ContentType = "text/html";
             }
 
             else

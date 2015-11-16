@@ -13,7 +13,6 @@ namespace FastCache
 {
     public class FastCacheCore
     {
-      
         public static string[] ExcludedPaths =>
             Configuration.ExcludePaths.Split(',');
 
@@ -36,8 +35,10 @@ namespace FastCache
                 );
         }
 
-        public static string GetMd5Hash(MD5 md5Hash, string input)
+        public static string GetMd5Hash(string input)
         {
+            var md5Hash = MD5.Create();
+
             var data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
 
             var sb = new StringBuilder();
