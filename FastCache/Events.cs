@@ -17,7 +17,7 @@ namespace FastCache
             Document.AfterPublish += new Document.PublishEventHandler(AfterPublish_Handler);
         }
 
-        void AfterPublish_Handler(Document sender, umbraco.cms.businesslogic.PublishEventArgs e)
+        static void AfterPublish_Handler(Document sender, umbraco.cms.businesslogic.PublishEventArgs e)
         {
             FastCacheCore.ClearCache();
         }

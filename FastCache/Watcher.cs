@@ -8,16 +8,14 @@ using System.Text;
 
 /*
  * Written by Phil Harvey @pjharvey
- * 
- * 
  */
 
 namespace FastCache
 {
     public class StreamWatcher : Stream
     {
-        private Stream _base;
-        private MemoryStream _memoryStream = new MemoryStream();
+        private readonly Stream _base;
+        private readonly MemoryStream _memoryStream = new MemoryStream();
 
         public StreamWatcher(Stream stream)
         {
@@ -44,22 +42,12 @@ namespace FastCache
         {
             return Encoding.UTF8.GetString(_memoryStream.ToArray());
         }
+        
+        public override bool CanRead => _base.CanRead;
 
-        #region Rest of the overrides
-        public override bool CanRead
-        {
-            get { return _base.CanRead; }
-        }
+        public override bool CanSeek => _base.CanSeek;
 
-        public override bool CanSeek
-        {
-            get { return _base.CanSeek; }
-        }
-
-        public override bool CanWrite
-        {
-            get { return _base.CanWrite; }
-        }
+        public override bool CanWrite => _base.CanWrite;
 
         public override long Seek(long offset, SeekOrigin origin)
         {
@@ -71,10 +59,7 @@ namespace FastCache
             _base.SetLength(value);
         }
 
-        public override long Length
-        {
-            get { return _base.Length; }
-        }
+        public override long Length => _base.Length;
 
         public override long Position
         {
@@ -87,7 +72,6 @@ namespace FastCache
                 _base.Position = value;
             }
         }
-        #endregion
     }
 
 }
