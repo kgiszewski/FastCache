@@ -9,7 +9,7 @@ using Umbraco.Web;
 
 namespace FastCache
 {
-    public class FastCacheEvents : IApplicationEventHandler
+    public class FastCacheEvents : ApplicationEventHandler
     {
         private ApplicationContext _applicationContext;
         private UmbracoApplicationBase _umbracoApplication;
@@ -18,10 +18,7 @@ namespace FastCache
             UmbracoApplicationBase umbracoApplication,
             ApplicationContext applicationContext )
         {
-            _umbracoApplication = umbracoApplication;
-            _applicationContext = applicationContext;
-
-            PublishingStrategy.Published += PublishingStrategy_Published;
+          
         }
 
         private void PublishingStrategy_Published(
@@ -59,7 +56,10 @@ namespace FastCache
             UmbracoApplicationBase umbracoApplication,
             ApplicationContext applicationContext )
         {
-           
+            _umbracoApplication = umbracoApplication;
+            _applicationContext = applicationContext;
+
+            PublishingStrategy.Published += PublishingStrategy_Published;
         }
     }
 }
