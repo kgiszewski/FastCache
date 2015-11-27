@@ -5,6 +5,7 @@ Fast Cache for Umbraco
 
 v2.0 (Tim Scarfe)
 
+* The content type of the output is set to text/html, this was the most important thing that was broken with the first version. I was getting plain text pages with Chrome. 
 * Partially re-written and cleaned up. There was a lot of code cruft and debug writes etc (looks like the previous developers couldn't step through it in a debugger?)
 * Removed the "spider" component and aspx files
 * Config strings are now in a resource file
