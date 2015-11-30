@@ -23,6 +23,7 @@ namespace FastCache
         private string _pathQuery = null;
         private bool _hasExtension;
         private StreamWatcher _watcher;
+        private static readonly object Lock = new object();
 
         public void Init(
             HttpApplication app)
@@ -73,11 +74,16 @@ namespace FastCache
                 .ToString()
                 .Trim();
 
-            // put html in file cache (so it can survive an app reload)
-            File.WriteAllText(
-                filePath,
-                html
-                );
+            // we don't want to be writing while its being read from another thread
+            lock(Lock)
+            {
+                // put html in file cache (so it can survive an app reload)
+                File.WriteAllText(
+                    filePath,
+                    html
+                    );
+            }
+            
 
             // put html in app cache for fast access inside this app cycle
             MutateAppCacheWithHtml( html );
@@ -158,8 +164,13 @@ namespace FastCache
             
             if (File.Exists(_app.Server.MapPath(_cachedUrl)))
             {
-                var html = File.ReadAllText( _app.Server.MapPath( _cachedUrl ) );
+                string html = null;
 
+                lock(Lock)
+                {
+                    html = File.ReadAllText(_app.Server.MapPath(_cachedUrl));
+                }
+                
                 MutateAppCacheWithHtml(html);
                 
                 // force the content type to be text/html in case there
