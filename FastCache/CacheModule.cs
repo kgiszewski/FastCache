@@ -82,17 +82,19 @@ namespace FastCache
                     filePath,
                     html
                     );
-            }
-            
 
-            // put html in app cache for fast access inside this app cycle
-            MutateAppCacheWithHtml( html );
+                // put html in app cache for fast access inside this app cycle
+                MutateAppCacheWithHtml(html);
+            }
         }
 
         private void MutateAppCacheWithHtml(
             string html )
         {
-            _app.Application.Set( _hashedPath, html );
+            _app
+                .Context
+                .Cache
+                .Insert( _hashedPath, html );
         }
 
         private static bool HasExcludedPath(
@@ -121,7 +123,12 @@ namespace FastCache
         private void SetParams()
         {
             _path = _app.Request.Url.AbsolutePath;
-            _pathQuery = _app.Request.Url.PathAndQuery;
+
+            _pathQuery = _app.Request.Url.AbsolutePath;
+
+            if( !_pathQuery.EndsWith( "/" ) )
+                _pathQuery = $"{_pathQuery}/";
+
             _containsExcludedPath = HasExcludedPath(_path);
             _hashedPath = FastCacheCore.GetMd5Hash(_pathQuery);
             _hasExtension = _path.Contains('.');
@@ -144,13 +151,20 @@ namespace FastCache
             if( _app.Request.RawUrl.Contains( "no-cache" ) )
             {
                 _app.Response.Headers.Add("cache-mode", "no-cache");
+
+                // clear the app cache
+                _app.Context.Cache.Remove( _hashedPath );
+                
+                // delete the cache file
+                File.Delete(_app.Server.MapPath(_cachedUrl));
+
                 SetWatcher();
                 return;
             }
 
             // in preference, use in-memory app cache as file system access is slow
             // on azure (I assume, because the file system is not local to the machine)
-            if (appCache != null)
+            if ( !string.IsNullOrWhiteSpace(appCache) )
             {
                 _app.Response.Headers.Add("cache-mode", "app-cache");
                 _app.Response.ContentType = "text/html";
@@ -169,9 +183,9 @@ namespace FastCache
                 lock(Lock)
                 {
                     html = File.ReadAllText(_app.Server.MapPath(_cachedUrl));
+
+                    MutateAppCacheWithHtml(html);
                 }
-                
-                MutateAppCacheWithHtml(html);
                 
                 // force the content type to be text/html in case there
                 // isn't a static mime mapping in the web.config file

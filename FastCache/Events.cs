@@ -55,9 +55,9 @@ namespace FastCache
                 UmbracoContext
                     .Current
                     .HttpContext
-                    .Application
-                    .Set(hash, null);
-                
+                    .Cache
+                    .Remove(hash);
+
                 System.IO.File.Delete(file);
 
                 LogHelper.Info<string>($"Deleted Umbraco cache file {file}");
