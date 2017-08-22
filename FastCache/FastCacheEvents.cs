@@ -5,6 +5,7 @@ using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Publishing;
+using Umbraco.Core.Services;
 using Umbraco.Web;
 
 namespace FastCache
@@ -13,13 +14,10 @@ namespace FastCache
     {
         protected override void ApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
         {
-            PublishingStrategy.Published += PublishingStrategy_Published;
+            ContentService.Published += ContentService_Published;
         }
 
-        private void PublishingStrategy_Published(
-            IPublishingStrategy sender,
-            PublishEventArgs<IContent> e
-            )
+        private void ContentService_Published(IPublishingStrategy sender, PublishEventArgs<IContent> e)
         {
             // specifically delete all the cache files for the published content
             var hashes = e
