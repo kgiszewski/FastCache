@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Umbraco.Core;
 using Umbraco.Core.Events;
+using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Core.Publishing;
@@ -30,11 +31,7 @@ namespace FastCache
 
             foreach (var hash in hashes)
             {
-                var file = UmbracoContext
-                                .Current
-                                .HttpContext
-                                .Server
-                                .MapPath($"~/FastCache/{hash}.html");
+                var file = IOHelper.MapPath($"~/FastCache/{hash}.html");
 
                 // clear it out of the app cache
                 UmbracoContext
