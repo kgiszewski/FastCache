@@ -20,14 +20,12 @@ namespace FastCache
             PublishEventArgs<IContent> e
             )
         {
-            var umbracoHelper = new UmbracoHelper(UmbracoContext.Current);
-
             // specifically delete all the cache files for the published content
             var hashes = e
                 .PublishedEntities
                 .Select(c =>
                    FastCacheCore.GetMd5Hash(
-                       umbracoHelper.NiceUrl(c.Id)
+                       UmbracoContext.Current.UrlProvider.GetUrl(c.Id)
                        ));
 
             foreach (var hash in hashes)
