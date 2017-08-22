@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using System.IO;
-using umbraco.BusinessLogic;
-using System.Text;
-using System.Security.Cryptography;
-using System.Web.Configuration;
+using System.Web;
 using Umbraco.Core.Logging;
 
 namespace FastCache
@@ -33,22 +27,6 @@ namespace FastCache
             return Directory.GetFiles(
                 HttpContext.Current.Server.MapPath( $"~/{Configuration.FastCacheDirectory}" )
                 );
-        }
-
-        public static string GetMd5Hash(string input)
-        {
-            var md5Hash = MD5.Create();
-
-            var data = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
-
-            var sb = new StringBuilder();
-
-            foreach( var t in data )
-            {
-                sb.Append(t.ToString("x2"));
-            }
-
-            return sb.ToString();
         }
     }
 }

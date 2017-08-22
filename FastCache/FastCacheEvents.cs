@@ -25,9 +25,7 @@ namespace FastCache
             var hashes = e
                 .PublishedEntities
                 .Select(c =>
-                   FastCacheCore.GetMd5Hash(
-                       UmbracoContext.Current.UrlProvider.GetUrl(c.Id)
-                       ));
+                    UmbracoContext.Current.UrlProvider.GetUrl(c.Id).ToMd5());
 
             foreach (var hash in hashes)
             {

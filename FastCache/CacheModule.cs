@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Web;
+using Umbraco.Core;
 using Umbraco.Web;
-using System.Web.Caching;
 
 /*
  * Written by @KevinGiszewski, @ecsplendid
@@ -130,7 +129,7 @@ namespace FastCache
                 _pathQuery = $"{_pathQuery}/";
 
             _containsExcludedPath = HasExcludedPath(_path);
-            _hashedPath = FastCacheCore.GetMd5Hash(_pathQuery);
+            _hashedPath = _pathQuery.ToMd5();
             _hasExtension = _path.Contains('.');
             _cachedUrl = $"~/{Configuration.FastCacheDirectory}/{_hashedPath}.html";
         }
