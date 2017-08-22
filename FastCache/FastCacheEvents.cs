@@ -1,9 +1,9 @@
 ﻿using System.Linq;
+﻿using System.IO;
 using Umbraco.Core;
 using Umbraco.Core.Events;
 using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
-using Umbraco.Core.Models;
 using Umbraco.Core.Publishing;
 using Umbraco.Core.Services;
 using Umbraco.Web;
@@ -17,7 +17,7 @@ namespace FastCache
             ContentService.Published += ContentService_Published;
         }
 
-        private void ContentService_Published(IPublishingStrategy sender, PublishEventArgs<IContent> e)
+        private void ContentService_Published(IPublishingStrategy sender, PublishEventArgs<Umbraco.Core.Models.IContent> e)
         {
             // specifically delete all the cache files for the published content
             var hashes = e
@@ -36,7 +36,7 @@ namespace FastCache
                     .Cache
                     .Remove(hash);
 
-                System.IO.File.Delete(file);
+                File.Delete(file);
 
                 LogHelper.Info<string>($"Deleted Umbraco cache file {file}");
             }
