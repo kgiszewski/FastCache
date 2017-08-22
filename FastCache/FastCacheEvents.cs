@@ -1,4 +1,3 @@
-﻿using System.Linq;
 ﻿using System.IO;
 using Umbraco.Core;
 using Umbraco.Core.Events;
@@ -20,13 +19,16 @@ namespace FastCache
         private void ContentService_Published(IPublishingStrategy sender, PublishEventArgs<Umbraco.Core.Models.IContent> e)
         {
             // specifically delete all the cache files for the published content
-            var hashes = e
-                .PublishedEntities
-                .Select(c =>
-                    UmbracoContext.Current.UrlProvider.GetUrl(c.Id).ToMd5());
-
-            foreach (var hash in hashes)
+            foreach (var entity in e.PublishedEntities)
             {
+                var url = UmbracoContext.Current.UrlProvider.GetUrl(entity.Id);
+
+                // if the URL is empty or a empty-anchor (hash), then skip
+                if (string.IsNullOrWhiteSpace(url) || url.Equals("#"))
+                    continue;
+
+                // get a hash of the url and cached file path
+                var hash = url.ToMd5();
                 var file = IOHelper.MapPath($"~/FastCache/{hash}.html");
 
                 // clear it out of the app cache
