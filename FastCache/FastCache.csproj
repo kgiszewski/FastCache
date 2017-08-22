@@ -266,7 +266,6 @@
     </Compile>
     <Compile Include="FastCacheEvents.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FastCacheCore.cs" />
     <Compile Include="StreamWatcher.cs" />
   </ItemGroup>
   <ItemGroup>

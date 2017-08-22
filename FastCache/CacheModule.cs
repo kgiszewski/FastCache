@@ -99,8 +99,9 @@ namespace FastCache
         private static bool HasExcludedPath(
             string path)
         {
-            return FastCacheCore
-                    .ExcludedPaths
+            return Configuration
+                    .ExcludePaths
+                    .Split(',')
                     .Any(excluded => path
                        .ToLower()
                        .StartsWith(excluded.ToLower())
