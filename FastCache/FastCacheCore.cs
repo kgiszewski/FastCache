@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Web;
+using Umbraco.Core.IO;
 using Umbraco.Core.Logging;
 
 namespace FastCache
@@ -25,7 +25,7 @@ namespace FastCache
         public static IEnumerable<string> GetCacheFiles()
         {
             return Directory.GetFiles(
-                HttpContext.Current.Server.MapPath( $"~/{Configuration.FastCacheDirectory}" )
+                IOHelper.MapPath( $"~/{Configuration.FastCacheDirectory}" )
                 );
         }
     }
