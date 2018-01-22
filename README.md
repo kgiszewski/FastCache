@@ -14,6 +14,10 @@ Fast Cache for Umbraco
 
 ## Changelog
 
+v2.2 
+
+* Added some tweaks, see https://github.com/ecsplendid/FastCache/commit/72a6d3f1ddbdf65b6a32e4d7b1a3c8568a508de9
+
 v2.1 (30th Nov 2015)
 
 * Fixed rare issue; writing to the cache file while it was being read concurrently in another thread. 
@@ -35,4 +39,5 @@ v2.0 (25th Nov 2015)
 ## Authors
 
 - [Kevin Giszewski](https://github.com/kgiszewski/) (v1.0)
-- [Tim Scarfe](https://github.com/ecsplendid/) (v2.0)
+- [Tim Scarfe](https://github.com/ecsplendid/) (v2.1)
+- [Lee Kelleher](https://github.com/leekelleher) (v2.2) Thanks Lee!
