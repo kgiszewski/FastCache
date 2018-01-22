@@ -4,7 +4,7 @@ Fast Cache for Umbraco
 
 ## Installation
 
-- [Download the package (2.1)](https://drive.google.com/a/developer-x.com/file/d/0Bz9S4LIuPplkVjlnV0JjT2d0dlU/view?usp=sharing)
+- [Download the package (2.1)](https://drive.google.com/a/developer-x.com/file/d/0Bz9S4LIuPplkVjlnV0JjT2d0dlU/view?usp=sharing) (note there is now a version 2.2, this is out of date.)
 - Install package
 - Add the following to your Web.config under `system.webServer/modules` (mind where you put this if you use rewrites, etc). Sorry I tried to figure out how to automate this and didn't get anywhere. 
 
