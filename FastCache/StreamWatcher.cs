@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 /*
@@ -42,7 +37,7 @@ namespace FastCache
         {
             return Encoding.UTF8.GetString(_memoryStream.ToArray());
         }
-        
+
         public override bool CanRead => _base.CanRead;
 
         public override bool CanSeek => _base.CanSeek;
@@ -73,5 +68,4 @@ namespace FastCache
             }
         }
     }
-
 }

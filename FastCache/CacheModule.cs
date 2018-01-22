@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Web;
+using Umbraco.Core;
 using Umbraco.Web;
-using System.Web.Caching;
 
 /*
  * Written by @KevinGiszewski, @ecsplendid
@@ -75,7 +74,7 @@ namespace FastCache
                 .Trim();
 
             // we don't want to be writing while its being read from another thread
-            lock(Lock)
+            lock (Lock)
             {
                 // put html in file cache (so it can survive an app reload)
                 File.WriteAllText(
@@ -89,19 +88,20 @@ namespace FastCache
         }
 
         private void MutateAppCacheWithHtml(
-            string html )
+            string html)
         {
             _app
                 .Context
                 .Cache
-                .Insert( _hashedPath, html );
+                .Insert(_hashedPath, html);
         }
 
         private static bool HasExcludedPath(
             string path)
         {
-            return FastCacheCore
-                    .ExcludedPaths
+            return Configuration
+                    .ExcludePaths
+                    .Split(',')
                     .Any(excluded => path
                        .ToLower()
                        .StartsWith(excluded.ToLower())
@@ -126,11 +126,11 @@ namespace FastCache
 
             _pathQuery = _app.Request.Url.AbsolutePath;
 
-            if( !_pathQuery.EndsWith( "/" ) )
+            if (!_pathQuery.EndsWith("/"))
                 _pathQuery = $"{_pathQuery}/";
 
             _containsExcludedPath = HasExcludedPath(_path);
-            _hashedPath = FastCacheCore.GetMd5Hash(_pathQuery);
+            _hashedPath = _pathQuery.ToMd5();
             _hasExtension = _path.Contains('.');
             _cachedUrl = $"~/{Configuration.FastCacheDirectory}/{_hashedPath}.html";
         }
@@ -148,13 +148,13 @@ namespace FastCache
 
             var appCache = (string)_app.Application.Get(_hashedPath);
 
-            if( _app.Request.RawUrl.Contains( "no-cache" ) )
+            if (_app.Request.RawUrl.Contains("no-cache"))
             {
                 _app.Response.Headers.Add("cache-mode", "no-cache");
 
                 // clear the app cache
-                _app.Context.Cache.Remove( _hashedPath );
-                
+                _app.Context.Cache.Remove(_hashedPath);
+
                 // delete the cache file
                 File.Delete(_app.Server.MapPath(_cachedUrl));
 
@@ -164,7 +164,7 @@ namespace FastCache
 
             // in preference, use in-memory app cache as file system access is slow
             // on azure (I assume, because the file system is not local to the machine)
-            if ( !string.IsNullOrWhiteSpace(appCache) )
+            if (!string.IsNullOrWhiteSpace(appCache))
             {
                 _app.Response.Headers.Add("cache-mode", "app-cache");
                 _app.Response.ContentType = "text/html";
@@ -175,18 +175,18 @@ namespace FastCache
 
                 return;
             }
-            
+
             if (File.Exists(_app.Server.MapPath(_cachedUrl)))
             {
                 string html = null;
 
-                lock(Lock)
+                lock (Lock)
                 {
                     html = File.ReadAllText(_app.Server.MapPath(_cachedUrl));
 
                     MutateAppCacheWithHtml(html);
                 }
-                
+
                 // force the content type to be text/html in case there
                 // isn't a static mime mapping in the web.config file
                 _app.Response.ContentType = "text/html";
@@ -198,7 +198,7 @@ namespace FastCache
 
                 return;
             }
-            
+
             // only do this if we want to record the page i.e. 
             // if there is no file or app cache, or if specifically asked to do so
             SetWatcher();
@@ -206,7 +206,7 @@ namespace FastCache
 
         private void SetWatcher()
         {
-            _watcher = new StreamWatcher( _app.Response.Filter );
+            _watcher = new StreamWatcher(_app.Response.Filter);
             _app.Response.Filter = _watcher;
         }
     }
